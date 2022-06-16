@@ -80,7 +80,7 @@ function App() {
         <wired-card elevation="3">
           <p>Game ID: {message.gameId}</p>
           <wired-button onClick={copyToClipboard}>Copy Game Link</wired-button>
-          {/* {isCopied && <p>Copied!</p>} */}
+          <p>1 person is here, send the link to a friend!</p>
         </wired-card>
       </div>
     </>
