@@ -5,11 +5,16 @@
   font-weight: 800;
   font-size: 2rem;
 }
+
 wired-card {
-  max-width: 20rem;
+  max-width: 24rem;
   margin: 0 auto;
   padding: 2rem;
   display: block;
+}
+
+wired-card > div {
+  padding: 0.2rem;
 }
 
 .App-logo {

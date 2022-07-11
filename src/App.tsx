@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { SyntheticEvent, useEffect } from 'react';
 import { tap } from 'rxjs/operators';
 import { webSocket } from 'rxjs/webSocket';
 import { useClipboard } from './useClipboard';
@@ -9,6 +9,23 @@ import './App.css';
 import { nanoid } from 'nanoid';
 
 const CLOSE_TIME = 3000;
+
+type Play = 'rock' | 'paper' | 'scissors' | 'lizard' | 'spock';
+
+interface Message {
+  action: string;
+  userId: string;
+  gameId?: string;
+  round?: number;
+  roundSummary?: string;
+  play?: Play;
+  yourScore?: number;
+  yourPlay?: Play;
+  theirScore?: number;
+  theirPlay?: Play;
+}
+
+const playOptions = ['rock', 'paper', 'scissors', 'lizard', 'spock'];
 
 function getUserId(): string {
   return localStorage.getItem('rpsls-user-id') || setLocalStorageUserId();
@@ -51,17 +68,23 @@ const wsConfig = {
   },
 };
 
-interface Message {
-  action: string;
-  userId: string;
-  gameId?: string;
-}
 const ws = webSocket<Message>(wsConfig);
 
 function App() {
   const [message, setMessage] = React.useState({} as Message);
   const [gameId, setGameId] = React.useState('');
+  const [yourPlay, setYourPlay] = React.useState(null as Play | null);
+  const [theirPlay, setTheirPlay] = React.useState(null as Play | null);
+  const [roundSummary, setRoundSummary] = React.useState(null as string | null);
   const { copy } = useClipboard({ successDuration: CLOSE_TIME });
+
+  useEffect(() => {
+    message.theirPlay && setTheirPlay(message.theirPlay);
+  }, [message.theirPlay]);
+
+  useEffect(() => {
+    message.roundSummary && setRoundSummary(message.roundSummary);
+  }, [message.roundSummary]);
 
   ws.pipe(
     tap((data) => {
@@ -86,13 +109,45 @@ function App() {
     toast('Copied to clipboard', { autoClose: CLOSE_TIME });
   }
 
+  function sendPlay(event: SyntheticEvent) {
+    const yourPlay = event.currentTarget.id as Play;
+    setYourPlay(yourPlay);
+    setTheirPlay(null);
+    setRoundSummary(null);
+    ws.next({
+      action: 'play',
+      gameId: message.gameId,
+      round: message.round,
+      userId: getUserId(),
+      play: yourPlay,
+    });
+  }
+
   return (
     <>
       <ToastContainer bodyStyle={{ fontFamily: 'Indie Flower' }} />
       <div className="App">
-        <wired-card elevation="3">
-          <p>Game ID: {message.gameId}</p>
+        <wired-card className="game" elevation="3">
           <wired-button onClick={copyToClipboard}>Copy Game Link</wired-button>
+          <p>Round {message.round}</p>
+          <div className="your-stuff">
+            <p>Your score {message.yourScore}</p>
+            <p>Your Play {yourPlay}</p>
+          </div>
+          <div>
+            <p>Their score {message.theirScore}</p>
+            <p>Their play {theirPlay}</p>
+          </div>
+          <p>{roundSummary}</p>
+        </wired-card>
+        <wired-card elevation="3">
+          <div>
+            {playOptions.map((play) => (
+              <wired-button key={play} id={play} onClick={sendPlay}>
+                {play}
+              </wired-button>
+            ))}
+          </div>
         </wired-card>
       </div>
     </>
