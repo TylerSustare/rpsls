@@ -1,7 +1,7 @@
-import { useState, useEffect } from "react";
-import copy from "copy-to-clipboard";
+import { useState, useEffect } from 'react';
+import copy from 'copy-to-clipboard';
 
-interface IOptions {
+interface Options {
   /**
    * Reset the status after a certain number of milliseconds. This is useful
    * for showing a temporary success message.
@@ -9,9 +9,12 @@ interface IOptions {
   successDuration?: number;
 }
 
-export function useClipboard(
-  options?: IOptions
-): [boolean, (text: string) => void] {
+interface Result {
+  isCopied: boolean;
+  copy: (text: string) => void;
+}
+
+export function useClipboard(options?: Options): Result {
   const [isCopied, setIsCopied] = useState(false);
   const successDuration = options && options.successDuration;
 
@@ -27,11 +30,11 @@ export function useClipboard(
     }
   }, [isCopied, successDuration]);
 
-  return [
+  return {
     isCopied,
-    (text: string) => {
+    copy: (text: string) => {
       const didCopy = copy(text);
       setIsCopied(didCopy);
     },
-  ];
+  };
 }
