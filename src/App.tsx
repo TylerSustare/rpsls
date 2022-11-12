@@ -3,6 +3,15 @@ import { tap } from 'rxjs/operators';
 import { webSocket } from 'rxjs/webSocket';
 import { useClipboard } from './useClipboard';
 import { ToastContainer, toast } from 'react-toastify';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import {
+  faHandBackFist,
+  faHand,
+  faHandScissors,
+  faHandLizard,
+  faHandSpock,
+  IconDefinition,
+} from '@fortawesome/free-solid-svg-icons';
 import 'react-toastify/dist/ReactToastify.css';
 import 'wired-elements';
 import './App.css';
@@ -25,7 +34,28 @@ interface Message {
   theirPlay?: Play;
 }
 
-const playOptions = ['rock', 'paper', 'scissors', 'lizard', 'spock'];
+const playOptions: { text: string; icon: IconDefinition }[] = [
+  {
+    text: 'rock',
+    icon: faHandBackFist,
+  },
+  {
+    text: 'paper',
+    icon: faHand,
+  },
+  {
+    text: 'scissors',
+    icon: faHandScissors,
+  },
+  {
+    text: 'lizard',
+    icon: faHandLizard,
+  },
+  {
+    text: 'spock',
+    icon: faHandSpock,
+  },
+];
 
 function getUserId(): string {
   return localStorage.getItem('rpsls-user-id') || setLocalStorageUserId();
@@ -130,6 +160,7 @@ function App() {
         <wired-card className="game" elevation="3">
           <wired-button onClick={copyToClipboard}>Copy Game Link</wired-button>
           <p>Round {message.round}</p>
+          {/* wrap with 2 columns */}
           <div className="your-stuff">
             <p>Your score {message.yourScore}</p>
             <p>Your Play {yourPlay}</p>
@@ -138,13 +169,14 @@ function App() {
             <p>Their score {message.theirScore}</p>
             <p>Their play {theirPlay}</p>
           </div>
+          {/* wrap with 2 columns */}
           <p>{roundSummary}</p>
         </wired-card>
         <wired-card elevation="3">
           <div>
-            {playOptions.map((play) => (
-              <wired-button key={play} id={play} onClick={sendPlay}>
-                {play}
+            {playOptions.map(({ text, icon }) => (
+              <wired-button key={text} id={text} onClick={sendPlay}>
+                {text} <FontAwesomeIcon icon={icon} />
               </wired-button>
             ))}
           </div>
