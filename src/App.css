@@ -7,14 +7,31 @@
 }
 
 wired-card {
-  max-width: 24rem;
+  max-width: 32rem;
   margin: 0 auto;
-  padding: 2rem;
+  padding: 1rem;
   display: block;
 }
 
 wired-card > div {
   padding: 0.2rem;
+}
+
+.row {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+  width: 100%;
+}
+
+.column {
+  display: flex;
+  flex-direction: column;
+  flex-basis: 100%;
+  flex: 1;
+  border: #282c34 1px solid;
+  /* padding: 0.2rem; */
+  /* margin: 0.2rem; */
 }
 
 .App-logo {

@@ -159,17 +159,25 @@ function App() {
       <div className="App">
         <wired-card className="game" elevation="3">
           <wired-button onClick={copyToClipboard}>Copy Game Link</wired-button>
-          <p>Round {message.round}</p>
-          {/* wrap with 2 columns */}
-          <div className="your-stuff">
-            <p>Your score {message.yourScore}</p>
-            <p>Your Play {yourPlay}</p>
+          {console.log('message', message)}
+          <div className="row">
+            <div className="column">
+              <div className="your-stuff">
+                <p>You</p>
+                <ul>
+                  <li>Your score {message.yourScore}</li>
+                  <li>Your Play {yourPlay}</li>
+                </ul>
+              </div>
+            </div>
+            <div className="column">
+              <div className="their-stuff">
+                <p>Them</p>
+                <p>Their score {message.theirScore}</p>
+                <p>Their play {theirPlay}</p>
+              </div>
+            </div>
           </div>
-          <div>
-            <p>Their score {message.theirScore}</p>
-            <p>Their play {theirPlay}</p>
-          </div>
-          {/* wrap with 2 columns */}
           <p>{roundSummary}</p>
         </wired-card>
         <wired-card elevation="3">
