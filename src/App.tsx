@@ -16,6 +16,7 @@ import 'react-toastify/dist/ReactToastify.css';
 import 'wired-elements';
 import './App.css';
 import { nanoid } from 'nanoid';
+import { PlayImage } from './PlayImage';
 
 const CLOSE_TIME = 3000;
 
@@ -72,16 +73,16 @@ const wsConfig = {
   url: wsURL,
   openObserver: {
     next: () => {
-      console.log('connected');
+      // console.log('connected');
       const gameId = window.location.pathname?.slice(1);
-      console.log('gameId', gameId);
+      // console.log('gameId', gameId);
       if (!gameId) {
         return ws.next({
           action: 'new',
           userId: getUserId(),
         });
       }
-      console.log('attempting to connect to ' + gameId);
+      // console.log('attempting to connect to ' + gameId);
       ws.next({
         action: 'join',
         userId: getUserId(),
@@ -92,7 +93,7 @@ const wsConfig = {
   closingObserver: {
     next: () => {
       // if (event.wasClean)
-      console.log('closingObserver');
+      // console.log('closingObserver');
       ws.complete();
     },
   },
@@ -104,22 +105,39 @@ function App() {
   const [message, setMessage] = React.useState({} as Message);
   const [gameId, setGameId] = React.useState('');
   const [yourPlay, setYourPlay] = React.useState(null as Play | null);
+  const [yourScore, setYourScore] = React.useState(0);
   const [theirPlay, setTheirPlay] = React.useState(null as Play | null);
   const [roundSummary, setRoundSummary] = React.useState(null as string | null);
+  const [lockPlay, setLockPlay] = React.useState(false);
+  const [youWon, setYouWon] = React.useState(null as boolean | null);
+
   const { copy } = useClipboard({ successDuration: CLOSE_TIME });
 
   useEffect(() => {
-    message.theirPlay && setTheirPlay(message.theirPlay);
-  }, [message.theirPlay]);
-
-  useEffect(() => {
     message.roundSummary && setRoundSummary(message.roundSummary);
-  }, [message.roundSummary]);
+    message.theirPlay && setTheirPlay(message.theirPlay);
+    // run effects when message changes, not several `useEffect` on each message.<property>
+    // when running just on property changes, we can miss updates to the
+    // greater state of the game, because certain parts of the message haven't changed.
+    // A tie game can happen for "rock vs rock" and "paper vs paper" etc.
+    // If we only run these on message.<property> each effect won't run always. Leading to
+    // an update to the game that is not reflected in the UI - a null roundSummary, for example.
+
+    // we could also just do this in the `tap` function in the `ws.pipe` function instead of setting message
+    if (message.yourScore === yourScore + 1) {
+      setYouWon(true);
+    }
+    setYourScore(message.yourScore ?? 0);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [message]);
+
+  useEffect(() => {}, [yourPlay, theirPlay]);
 
   ws.pipe(
     tap((data) => {
-      console.log(data);
+      // console.log(data);
       setMessage(data);
+      setLockPlay(false);
     })
   ).subscribe();
 
@@ -141,9 +159,13 @@ function App() {
 
   function sendPlay(event: SyntheticEvent) {
     const yourPlay = event.currentTarget.id as Play;
+    if (lockPlay) {
+      return;
+    }
     setYourPlay(yourPlay);
     setTheirPlay(null);
     setRoundSummary(null);
+    setYouWon(false);
     ws.next({
       action: 'play',
       gameId: message.gameId,
@@ -151,6 +173,7 @@ function App() {
       userId: getUserId(),
       play: yourPlay,
     });
+    setLockPlay(true);
   }
 
   return (
@@ -159,26 +182,34 @@ function App() {
       <div className="App">
         <wired-card className="game" elevation="3">
           <wired-button onClick={copyToClipboard}>Copy Game Link</wired-button>
-          {console.log('message', message)}
+          {/* {console.log('message', message)} */}
           <div className="row">
             <div className="column">
               <div className="your-stuff">
                 <p>You</p>
-                <ul>
-                  <li>Your score {message.yourScore}</li>
-                  <li>Your Play {yourPlay}</li>
+                <ul className="no-bullets">
+                  <li>Score {yourScore}</li>
+                  <li>{yourPlay}</li>
+                  <PlayImage
+                    className="your-play-img"
+                    play={yourPlay ?? 'loading'}
+                  />
                 </ul>
               </div>
             </div>
             <div className="column">
               <div className="their-stuff">
                 <p>Them</p>
-                <p>Their score {message.theirScore}</p>
-                <p>Their play {theirPlay}</p>
+                <ul className="no-bullets">
+                  <li>Score {message.theirScore}</li>
+                  <li>{theirPlay}</li>
+                  <PlayImage play={theirPlay ?? 'loading'} />
+                </ul>
               </div>
             </div>
           </div>
           <p>{roundSummary}</p>
+          <p>{youWon && 'You Won!'}</p>
         </wired-card>
         <wired-card elevation="3">
           <div>

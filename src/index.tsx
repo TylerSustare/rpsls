@@ -1,11 +1,11 @@
-import React from "react";
-import ReactDOM from "react-dom/client";
-import "./index.css";
-import App from "./App";
-import reportWebVitals from "./reportWebVitals";
+import React from 'react';
+import ReactDOM from 'react-dom/client';
+import './index.css';
+import App from './App';
+import reportWebVitals from './reportWebVitals';
 
 const root = ReactDOM.createRoot(
-  document.getElementById("root") as HTMLElement
+  document.getElementById('root') as HTMLElement
 );
 root.render(
   <React.StrictMode>
@@ -21,9 +21,10 @@ reportWebVitals();
 declare global {
   namespace JSX {
     interface IntrinsicElements {
-      "wired-card": any;
-      "wired-button": any;
-      "wired-image": any;
+      'wired-card': any;
+      'wired-button': any;
+      'wired-image': any;
+      'wired-spinner': any;
     }
   }
 }
