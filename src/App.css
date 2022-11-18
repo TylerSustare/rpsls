@@ -41,9 +41,13 @@ ul.no-bullets {
   /* margin: 0.2rem; */
 }
 
+.game{
+  min-height: 60vw;
+}
+
 img {
-  max-width: 10rem;
-  max-height: 10rem;
+  max-width: 12rem;
+  max-height: 12rem;
 }
 
 .your-play-img {

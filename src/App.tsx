@@ -17,6 +17,7 @@ import 'wired-elements';
 import './App.css';
 import { nanoid } from 'nanoid';
 import { PlayImage } from './PlayImage';
+import Confetti from 'react-confetti';
 
 const CLOSE_TIME = 3000;
 
@@ -107,7 +108,7 @@ function App() {
   const [yourPlay, setYourPlay] = React.useState(null as Play | null);
   const [yourScore, setYourScore] = React.useState(0);
   const [theirPlay, setTheirPlay] = React.useState(null as Play | null);
-  const [roundSummary, setRoundSummary] = React.useState(null as string | null);
+  const [roundSummary, setRoundSummary] = React.useState('');
   const [lockPlay, setLockPlay] = React.useState(false);
   const [youWon, setYouWon] = React.useState(null as boolean | null);
 
@@ -130,8 +131,6 @@ function App() {
     setYourScore(message.yourScore ?? 0);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [message]);
-
-  useEffect(() => {}, [yourPlay, theirPlay]);
 
   ws.pipe(
     tap((data) => {
@@ -164,7 +163,7 @@ function App() {
     }
     setYourPlay(yourPlay);
     setTheirPlay(null);
-    setRoundSummary(null);
+    setRoundSummary('');
     setYouWon(false);
     ws.next({
       action: 'play',
@@ -178,17 +177,18 @@ function App() {
 
   return (
     <>
+      {youWon && (
+        <Confetti gravity={0.5} numberOfPieces={200} recycle={false} />
+      )}
       <ToastContainer bodyStyle={{ fontFamily: 'Indie Flower' }} />
       <div className="App">
         <wired-card className="game" elevation="3">
           <wired-button onClick={copyToClipboard}>Copy Game Link</wired-button>
-          {/* {console.log('message', message)} */}
           <div className="row">
             <div className="column">
               <div className="your-stuff">
-                <p>You</p>
                 <ul className="no-bullets">
-                  <li>Score {yourScore}</li>
+                  <li>Your Score: {yourScore}</li>
                   <li>{yourPlay}</li>
                   <PlayImage
                     className="your-play-img"
@@ -199,17 +199,19 @@ function App() {
             </div>
             <div className="column">
               <div className="their-stuff">
-                <p>Them</p>
                 <ul className="no-bullets">
-                  <li>Score {message.theirScore}</li>
+                  <li>Their Score: {message.theirScore}</li>
                   <li>{theirPlay}</li>
                   <PlayImage play={theirPlay ?? 'loading'} />
                 </ul>
               </div>
             </div>
           </div>
-          <p>{roundSummary}</p>
-          <p>{youWon && 'You Won!'}</p>
+          <p>
+            {yourScore === 0 && message.theirScore === 0
+              ? 'Successfully Joined! Copy the Game link and send it to a friend!'
+              : roundSummary}
+          </p>
         </wired-card>
         <wired-card elevation="3">
           <div>
