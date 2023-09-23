@@ -1,5 +1,7 @@
 # Rock, Paper, Scissors, Lizard, Spock
 
+### [See it live!](https://rpsls.sustare.com)
+
 A game designed to play with serverless websockets using DynamoDB and API Gateway.
 
 ## Frontend
