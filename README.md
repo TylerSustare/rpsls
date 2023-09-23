@@ -15,3 +15,5 @@ The backend was written in `Go` mostly for a reason to play around with it. Ther
 The websockets are powered using DynamoDB and API Gateway. The DynamoDB table maintains the websocket connection state while API gateway keeps the connection open. This way we can send and receive messages to API Gateway in order to fire off the lambdas that respond to those messages (connect, disconnect, default).
 
 The data layer for the project is also in DynamoDB with a single table design.
+
+The backend is deployed with AWS SAM because I've already done this using the [Serverless Framework](https://serverless.com) and wanted to try something new.
