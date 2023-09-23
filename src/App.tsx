@@ -1,6 +1,6 @@
 import React, { SyntheticEvent, useEffect } from 'react';
 import { tap } from 'rxjs/operators';
-import { webSocket } from 'rxjs/webSocket';
+import { webSocket, WebSocketSubjectConfig } from 'rxjs/webSocket';
 import { useClipboard } from './useClipboard';
 import { ToastContainer, toast } from 'react-toastify';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
@@ -70,7 +70,7 @@ function setLocalStorageUserId(): string {
 }
 
 const wsURL = 'wss://cbwfvjy7j8.execute-api.us-west-2.amazonaws.com/Prod';
-const wsConfig = {
+const wsConfig: WebSocketSubjectConfig<Message> = {
   url: wsURL,
   openObserver: {
     next: () => {
@@ -91,11 +91,10 @@ const wsConfig = {
       });
     },
   },
-  closingObserver: {
-    next: () => {
-      // if (event.wasClean)
-      // console.log('closingObserver');
-      ws.complete();
+  closeObserver: {
+    next: (event) => {
+      if (event.wasClean) ws.complete();
+      // else ws.subscribe();
     },
   },
 };
@@ -125,6 +124,7 @@ function App() {
     // an update to the game that is not reflected in the UI - a null roundSummary, for example.
 
     // we could also just do this in the `tap` function in the `ws.pipe` function instead of setting message
+    // we probably should since `tap` is designed to be a place for side effects https://rxjs.dev/api/operators/tap
     if (message.yourScore === yourScore + 1) {
       setYouWon(true);
     }
@@ -183,7 +183,6 @@ function App() {
       <ToastContainer bodyStyle={{ fontFamily: 'Indie Flower' }} />
       <div className="App">
         <wired-card className="game" elevation="3">
-          <wired-button onClick={copyToClipboard}>Copy Game Link</wired-button>
           <div className="row">
             <div className="column">
               <div className="your-stuff">
@@ -212,6 +211,7 @@ function App() {
               ? 'Successfully Joined! Copy the Game link and send it to a friend!'
               : roundSummary}
           </p>
+          <wired-button onClick={copyToClipboard}>Copy Game Link</wired-button>
         </wired-card>
         <wired-card elevation="3">
           <div>
